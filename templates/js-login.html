@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <div class="form-container">
+            <form id="jsform">
+              <h2>Javascript Login</h2>
+              <input type="text" name="username" id="username" placeholder="username" />
+              <p id="error-text">please provide credentails</p>
+              <button type="submit">Submit</button>
+            </form>
+            <div class="userlist"></div>
+          </div>
+    </body>
+    <script>
+        let userList = document.querySelector(".userlist")
+        const fetchData = async()=>{
+            await fetch('api/person')
+                .then(res=>{
+                    if(!res.ok){
+                        console.log("fetch data failed!")
+                    } else{
+                        return res.json()
+                    }
+                })
+                .then(json=>{
+                    json.data.forEach(i=>{
+                        let h5 = document.createElement("h2")
+                        h5.innerText = i.name
+                        userList.appendChild(h5)
+                    })
+                    //console.log(json.data)
+                }
+            )}
+        fetchData()
+
+        document.querySelector("#jsform").addEventListener("submit", async(e)=>{
+            e.preventDefault();
+            const username = document.getElementById('username').value
+            const errorText = document.getElementById('error-text')
+            await fetch('api/person', {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: username})
+                })
+                .then(res=>res.json())
+                .then(data=>{
+                    if(data.success){
+                        errorText.style.display = 'none'
+                        let h5 = document.createElement("h2")
+                        h5.innerText = data.name
+                        userList.appendChild(h5)
+                        // console.log(data);
+                    } else{
+                        errorText.style.display = 'block'
+                        errorText.innerText= data.msg   
+                }
+            })
+        })
+    </script>
+</html>
